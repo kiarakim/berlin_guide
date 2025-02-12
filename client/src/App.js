@@ -22,34 +22,25 @@ const StyledTable = styled(Table)(({ theme }) => ({
     minWidth: 1080,
   },
 }));
-const customers = [
-  {
-    'id': 1,
-    'image': 'https://picsum.photos/id/236/40/60',
-    'name': 'Kim',
-    'birthday': '980413',
-    'gender': 'female',
-    'job': 'developer'
-  },
-  {
-    'id': 2,
-    'image': 'https://picsum.photos/id/237/40/60',
-    'name': 'Gwon',
-    'birthday': '991213',
-    'gender': 'male',
-    'job': 'athlete'
-  },
-  {
-    'id': 3,
-    'image': 'https://picsum.photos/id/238/40/60',
-    'name': 'Yoo',
-    'birthday': '666666',
-    'gender': 'female',
-    'job': 'mom'
-  }
-]
 
 class App extends React.Component {
+  
+  state = {
+    customers: ""
+  }
+
+  componentDidMount() { // 모든 컴포넌트가 마운트되었을 때 실행됨
+    this.callApi()      // 준비가 완료 되었으니 api를 불러보기
+    .then(res => this.setState({customers: res})) // 그럼 이제 아래의 body가 res라는 이름으로 가져와짐
+    .catch(err => console.log(err));  // 오류가 발생할 경우 콘솔에 오류 출력
+  }
+
+  callApi = async () => {  // 비동기로 수행하도록
+    const response = await fetch('/api/customers');
+    const body = await response.json(); // 고객 목록이 json형태로 출력이 되는데 그걸 body에 넣어줄거임. 즉, react app에서 server에 접속을 해서 그 내용을 가져와서 json형태로 body에 저장
+    return body;
+  }
+
   render() {
     return (
       <StyledPaper>
@@ -65,7 +56,9 @@ class App extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {customers.map(c => {return (<Customer key={c.id} id={c.id} image={c.image} name={c.name} birthday={c.birthday} gender={c.gender} job={c.job}/>)})}
+            {this.state.customers ? this.state.customers.map(c => {
+              return (<Customer key={c.id} id={c.id} image={c.image} name={c.name} birthday={c.birthday} gender={c.gender} job={c.job}/>);
+            }) : ""}
           </TableBody>
         </StyledTable>
       </StyledPaper>
