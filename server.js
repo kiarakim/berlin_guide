@@ -1,3 +1,4 @@
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
@@ -7,33 +8,26 @@ const cors = require('cors');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
 
+const data = fs.readFileSync('./database.json');
+const conf = JSON.parse(data);
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+  host: conf.host,
+  user: conf.user,
+  password: conf.password,
+  port: conf.port,
+  database: conf.database
+});
+connection.connect();
+
 app.get('/api/customers', (req, res) => {
-    res.send([
-        {
-            'id': 1,
-            'image': 'https://picsum.photos/id/236/40/60',
-            'name': 'Kim',
-            'birthday': '980413',
-            'gender': 'female',
-            'job': 'developer'
-          },
-          {
-            'id': 2,
-            'image': 'https://picsum.photos/id/237/40/60',
-            'name': 'Gwon',
-            'birthday': '991213',
-            'gender': 'male',
-            'job': 'athlete'
-          },
-          {
-            'id': 3,
-            'image': 'https://picsum.photos/id/238/40/60',
-            'name': 'Yoo',
-            'birthday': '666666',
-            'gender': 'female',
-            'job': 'mom'
-          }
-    ]);
+    connection.query(
+      "SELECT * FROM CUSTOMER",
+      (err, rows, fields) => {
+        res.send(rows);
+      }
+    )
 });
 
 app.use(cors());
